@@ -182,20 +182,20 @@ public class LoginTest {
 			// one of the articles should be displayed only to anonymous users
 			checkHomePageArticles(driver, 3);
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-			checkAllSelectableMenus(driver,
-					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
-							"Sample Hacks", "Sectors", "Freight", "Infrastructure", "Passenger Vehicles", "Transit",
-							"Report Threat", "Conact Us", "FAQ", "Logout" });
+//			checkAllSelectableMenus(driver,
+//					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
+//							"Sample Hacks", "Sectors", "Freight", "Infrastructure", "Passenger Vehicles", "Transit",
+//							"Report Threat", "Conact Us", "FAQ", "Logout" });
 			logout(driver);
 			Thread.sleep(1000);
 
 			login(driver, "authorized1", "ITEcyber2017");
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-			checkAllSelectableMenus(driver,
-					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
-							"Sample Hacks", "Sectors", "Awareness", "Threat List", "Freight", "Infrastructure",
-							"Passenger Vehicles", "Regions", "Transit", "Report Threat", "Conact Us", "FAQ", "Requests",
-							"Logout" });
+//			checkAllSelectableMenus(driver,
+//					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
+//							"Sample Hacks", "Sectors", "Awareness", "Threat List", "Freight", "Infrastructure",
+//							"Passenger Vehicles", "Regions", "Transit", "Report Threat", "Conact Us", "FAQ", "Requests",
+//							"Logout" });
 			logout(driver);
 
 			driver.close();
