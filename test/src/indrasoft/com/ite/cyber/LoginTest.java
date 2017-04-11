@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -102,12 +103,16 @@ public class LoginTest {
 		String oneText = null;
 		int counter = 0;
 		for (WebElement oneOption : menuOptions) {
-			oneText = oneOption.getAttribute("innerHTML");
+			oneText = oneOption.getText();
+			if (oneText == null || oneText.trim().length() == 0) {
+				oneText = oneOption.getAttribute("innerHTML");
+			}
 			Assert.assertEquals(expecteds[counter++], oneText);
 		}
 		System.out.println();
 	}
 
+	@Ignore
 	@Test
 	public void localFirefoxTest() {
 		WebDriver driver = null;
@@ -177,6 +182,10 @@ public class LoginTest {
 			// one of the articles should be displayed only to anonymous users
 			checkHomePageArticles(driver, 3);
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
+			checkAllSelectableMenus(driver,
+					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
+							"Sample Hacks", "Sectors", "Freight", "Infrastructure", "Passenger Vehicles", "Transit",
+							"Report Threat", "Conact Us", "FAQ", "Logout" });
 			logout(driver);
 			Thread.sleep(1000);
 
@@ -201,6 +210,7 @@ public class LoginTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void remoteFirefoxTest() {
 		WebDriver driver = null;
@@ -243,6 +253,7 @@ public class LoginTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void remoteChromeTest() {
 		WebDriver driver = null;
