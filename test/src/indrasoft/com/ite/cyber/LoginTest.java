@@ -167,7 +167,7 @@ public class LoginTest {
 	public void htmlTest() {
 		HtmlUnitDriver driver = null;
 		try {
-			String url = "http://rdedemo";
+			String url = "http://ite-cyber.indrasoft.net";
 
 			DesiredCapabilities firefoxCapabilities = DesiredCapabilities.firefox();
 			firefoxCapabilities.setBrowserName("htmlunit");
