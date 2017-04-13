@@ -17,19 +17,8 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-
 //@RunWith
 public class LoginTest {
-
-	private void startDockerServer() throws Exception {
-		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
-		
-		DockerClient firefoxDocker = DockerClientBuilder.getInstance(config).build();
-	}
 
 	private void login(WebDriver driver, String username, String password) throws Exception {
 		WebElement loginMenu = new WebDriverWait(driver, 10).until(ExpectedConditions
