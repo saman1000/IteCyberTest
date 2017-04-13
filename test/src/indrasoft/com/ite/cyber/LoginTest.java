@@ -152,6 +152,7 @@ public class LoginTest {
 
 	}
 
+	@Ignore
 	@Test
 	public void htmlTest() {
 		HtmlUnitDriver driver = null;
@@ -199,15 +200,39 @@ public class LoginTest {
 		}
 	}
 
-	@Ignore
 	@Test
-	public void remoteFirefoxTest() {
+	public void testSeleniumNodes() {
+		try (SeleniumDirector director = new SeleniumDirectorImpl();) {
+			director.buildContainers();
+			for (Container oneContainer : director.getNodes()) {
+				oneRemoteTest(oneContainer);
+			}
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+	
+	private void oneRemoteTest(Container oneContainer) {
 		WebDriver driver = null;
 		try {
 			String url = "http://ite-cyber.indrasoft.net";
 
-			DesiredCapabilities firefoxCapabilities = DesiredCapabilities.firefox();
-			driver = new RemoteWebDriver(new URL("http://172.17.03:5555/wd/hub"), firefoxCapabilities);
+			DesiredCapabilities chromeCapabilities = null;
+			switch (oneContainer.getContainerType()) {
+			case FirefoxNode:
+				chromeCapabilities = DesiredCapabilities.firefox();
+				break;
+
+			case ChromeNode:
+				chromeCapabilities = DesiredCapabilities.chrome();
+				break;
+				
+			default:
+				Assert.fail("unknown type, " + oneContainer.getContainerType());
+				break;
+			}
+			
+			driver = new RemoteWebDriver(oneContainer.getUrl(), chromeCapabilities);
 
 			driver.get(url);
 
@@ -241,48 +266,5 @@ public class LoginTest {
 			}
 		}
 	}
-
-	@Ignore
-	@Test
-	public void remoteChromeTest() {
-		WebDriver driver = null;
-		try {
-			String url = "http://ite-cyber.indrasoft.net";
-
-			DesiredCapabilities chromeCapabilities = DesiredCapabilities.chrome();
-			driver = new RemoteWebDriver(new URL("http://172.17.04:5555/wd/hub"), chromeCapabilities);
-
-			driver.get(url);
-
-			checkHomePageArticles(driver, 4);
-			checkMainMenus(driver, new String[] { "Home", "Report Threat", "About", "Login" });
-
-			login(driver, "approved1", "ITEcyber2017");
-			// one of the articles should be displayed only to anonymous users
-			checkHomePageArticles(driver, 3);
-			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-			logout(driver);
-			Thread.sleep(1000);
-
-			login(driver, "authorized1", "ITEcyber2017");
-			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-			checkAllSelectableMenus(driver,
-					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
-							"Sample Hacks", "Sectors", "Awareness", "Threat List", "Freight", "Infrastructure",
-							"Passenger Vehicles", "Regions", "Transit", "Report Threat", "Conact Us", "FAQ", "Requests",
-							"Logout" });
-			logout(driver);
-
-			driver.close();
-			driver.quit();
-			driver = null;
-		} catch (Exception e) {
-			Assert.fail(e.getMessage());
-		} finally {
-			if (driver != null) {
-				driver.quit();
-			}
-		}
-	}
-
+	
 }
