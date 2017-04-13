@@ -1,6 +1,5 @@
 package indrasoft.com.ite.cyber;
 
-import java.net.URL;
 import java.util.List;
 
 import org.hamcrest.CoreMatchers;
@@ -217,14 +216,14 @@ public class LoginTest {
 		try {
 			String url = "http://ite-cyber.indrasoft.net";
 
-			DesiredCapabilities chromeCapabilities = null;
+			DesiredCapabilities browserCapabilities = null;
 			switch (oneContainer.getContainerType()) {
 			case FirefoxNode:
-				chromeCapabilities = DesiredCapabilities.firefox();
+				browserCapabilities = DesiredCapabilities.firefox();
 				break;
 
 			case ChromeNode:
-				chromeCapabilities = DesiredCapabilities.chrome();
+				browserCapabilities = DesiredCapabilities.chrome();
 				break;
 				
 			default:
@@ -232,7 +231,7 @@ public class LoginTest {
 				break;
 			}
 			
-			driver = new RemoteWebDriver(oneContainer.getUrl(), chromeCapabilities);
+			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
 
 			driver.get(url);
 
