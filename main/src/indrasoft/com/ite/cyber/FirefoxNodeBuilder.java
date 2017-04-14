@@ -19,11 +19,13 @@ public class FirefoxNodeBuilder implements ContainerBuilder {
 
 	private void buildNode(FirefoxContainer firefoxNode) throws Exception {
 		
-		String node_port = "9080";
+		String node_port = "5555";
 		CreateContainerResponse createContainerResponse = dockerClient.createContainerCmd(firefoxNode.getContainerType().getdockerImage())
-				.withEnv("--detached=true", "NODE_PORT=" + node_port)
-				.withLinks(new Link("selenium-hub", "hub")).withPublishAllPorts(Boolean.TRUE)
-				.withName("node-firefox").exec();
+				.withEnv("--detached=true")//, "NODE_PORT=")
+				.withLinks(new Link("selenium-hub", "hub"))
+				.withPublishAllPorts(Boolean.TRUE)
+				.withName("node-firefox")
+				.exec();
 		String[] warnings = createContainerResponse.getWarnings();
 		if (warnings != null) {
 			for (String oneWarning : createContainerResponse.getWarnings()) {
@@ -46,7 +48,7 @@ public class FirefoxNodeBuilder implements ContainerBuilder {
 			firefoxNodeUrl.append(firefoxNode.getIpAddress());
 			firefoxNodeUrl.append(":");
 			firefoxNodeUrl.append(node_port);
-			firefoxNodeUrl.append("/wd/hub");
+			firefoxNodeUrl.append("/wd/hub/");
 			firefoxNode.setUrl(new URL(firefoxNodeUrl.toString()));
 		}
 	}

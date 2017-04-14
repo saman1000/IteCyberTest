@@ -10,7 +10,7 @@ import com.github.dockerjava.api.model.Info;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
+import com.github.dockerjava.netty.NettyDockerCmdExecFactory;
 
 public class SeleniumDirectorImpl implements SeleniumDirector {
 
@@ -34,6 +34,7 @@ public class SeleniumDirectorImpl implements SeleniumDirector {
 			buildDockerClient();
 			ContainerBuilder gridBuilder = new DockerGridBuilder(dockerClient);
 			ContainerBuilder firefoxBuilder = new FirefoxNodeBuilder(dockerClient);
+			ContainerBuilder chromeBuilder = new ChromeNodeBuilder(dockerClient);
 
 			gridContainer = gridBuilder.build();
 
@@ -41,6 +42,9 @@ public class SeleniumDirectorImpl implements SeleniumDirector {
 			Container firefoxContainer = firefoxBuilder.build();
 			nodeList.add(firefoxContainer);
 
+			Container chromeContainer = chromeBuilder.build();
+			nodeList.add(chromeContainer);
+			
 			this.nodeList = Collections.unmodifiableList(nodeList);
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
@@ -49,9 +53,9 @@ public class SeleniumDirectorImpl implements SeleniumDirector {
 
 	private void buildDockerClient() {
 		DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-				.withDockerHost("tcp://192.168.111.193:2375").withDockerTlsVerify(false).build();
+				.withDockerHost("unix:///var/run/docker.sock").withDockerTlsVerify(false).build();
 
-		DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory();
+		DockerCmdExecFactory dockerCmdExecFactory = new NettyDockerCmdExecFactory(); //new JerseyDockerCmdExecFactory();
 
 		dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(dockerCmdExecFactory).build();
 

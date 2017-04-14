@@ -53,6 +53,9 @@ public class LoginTest {
 
 		Thread.sleep(100);
 		Assert.assertThat(driver.getCurrentUrl(), CoreMatchers.containsString("index.php"));
+		// wait until logged out
+		(new WebDriverWait(driver, 10)).until(ExpectedConditions
+				.presenceOfElementLocated(By.xpath("//*[@id='js_navigation']//a[contains(@href,'login')]")));
 	}
 
 	private void checkHomePageArticles(WebDriver driver, Integer expectedNumberOfArticles) throws Exception {
@@ -101,16 +104,16 @@ public class LoginTest {
 		System.out.println();
 	}
 
-	@Ignore
+//	@Ignore
 	@Test
 	public void localFirefoxTest() {
 		WebDriver driver = null;
 		try {
 			Configuration config = new Configuration();
 			
-			System.setProperty("webdriver.gecko.driver", "C:\\saman\\agile\\geckodriver.exe");
-			// System.setProperty("webdriver.gecko.driver",
-			// "/home/seluser/drivers/geckodriver");
+//			System.setProperty("webdriver.gecko.driver", "C:\\saman\\agile\\geckodriver.exe");
+			 System.setProperty("webdriver.gecko.driver",
+			 "/home/seluser/drivers/geckodriver");
 			String url = "http://ubuntudev:9001";
 
 			DesiredCapabilities firefoxCapabilities = DesiredCapabilities.firefox();
@@ -236,7 +239,8 @@ public class LoginTest {
 				break;
 			}
 			
-			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
+			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities, browserCapabilities);
+//			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
 
 			driver.get(url);
 
@@ -263,9 +267,10 @@ public class LoginTest {
 			driver.quit();
 			driver = null;
 		} catch (Exception e) {
-			Assert.fail(e.getMessage());
+			Assert.fail(oneContainer.getContainerType().name() + ": " + e.getMessage());
 		} finally {
 			if (driver != null) {
+				driver.close();
 				driver.quit();
 			}
 		}
