@@ -16,7 +16,8 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-//@RunWith
+import indrasoft.com.ite.config.Configuration;
+
 public class LoginTest {
 
 	private void login(WebDriver driver, String username, String password) throws Exception {
@@ -105,6 +106,8 @@ public class LoginTest {
 	public void localFirefoxTest() {
 		WebDriver driver = null;
 		try {
+			Configuration config = new Configuration();
+			
 			System.setProperty("webdriver.gecko.driver", "C:\\saman\\agile\\geckodriver.exe");
 			// System.setProperty("webdriver.gecko.driver",
 			// "/home/seluser/drivers/geckodriver");
@@ -118,7 +121,7 @@ public class LoginTest {
 			checkHomePageArticles(driver, 4);
 			checkMainMenus(driver, new String[] { "Home", "Report Threat", "About", "Login" });
 
-			login(driver, "approved1", "ITEcyber2017");
+			login(driver, config.getEncryptedValue("approvedUser"), config.getEncryptedValue("approvedPwd"));
 			// one of the articles should be displayed only to anonymous users
 			checkHomePageArticles(driver, 3);
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
@@ -129,7 +132,7 @@ public class LoginTest {
 			logout(driver);
 			Thread.sleep(1000);
 
-			login(driver, "authorized1", "ITEcyber2017");
+			login(driver, config.getEncryptedValue("authorizedUser"), config.getEncryptedValue("approvedPwd"));
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
 			checkAllSelectableMenus(driver,
 					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
@@ -156,6 +159,7 @@ public class LoginTest {
 	public void htmlTest() {
 		HtmlUnitDriver driver = null;
 		try {
+			Configuration config = new Configuration();
 			String url = "http://ite-cyber.indrasoft.net";
 
 			DesiredCapabilities firefoxCapabilities = DesiredCapabilities.firefox();
@@ -167,7 +171,7 @@ public class LoginTest {
 			checkHomePageArticles(driver, 4);
 			checkMainMenus(driver, new String[] { "Home", "Report Threat", "About", "Login" });
 
-			login(driver, "approved1", "ITEcyber2017");
+			login(driver, config.getEncryptedValue("approvedUser"), config.getEncryptedValue("approvedPwd"));
 			// one of the articles should be displayed only to anonymous users
 			checkHomePageArticles(driver, 3);
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
@@ -178,7 +182,7 @@ public class LoginTest {
 			logout(driver);
 			Thread.sleep(1000);
 
-			login(driver, "authorized1", "ITEcyber2017");
+			login(driver, config.getEncryptedValue("authorizedUser"), config.getEncryptedValue("approvedPwd"));
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
 //			checkAllSelectableMenus(driver,
 //					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
@@ -202,16 +206,17 @@ public class LoginTest {
 	@Test
 	public void testSeleniumNodes() {
 		try (SeleniumDirector director = new SeleniumDirectorImpl();) {
+			Configuration config = new Configuration();
 			director.buildContainers();
 			for (Container oneContainer : director.getNodes()) {
-				oneRemoteTest(oneContainer);
+				oneRemoteTest(oneContainer, config);
 			}
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
 	}
 	
-	private void oneRemoteTest(Container oneContainer) {
+	private void oneRemoteTest(Container oneContainer, Configuration config) {
 		WebDriver driver = null;
 		try {
 			String url = "http://ite-cyber.indrasoft.net";
@@ -238,14 +243,14 @@ public class LoginTest {
 			checkHomePageArticles(driver, 4);
 			checkMainMenus(driver, new String[] { "Home", "Report Threat", "About", "Login" });
 
-			login(driver, "approved1", "ITEcyber2017");
+			login(driver, config.getEncryptedValue("approvedUser"), config.getEncryptedValue("approvedPwd"));
 			// one of the articles should be displayed only to anonymous users
 			checkHomePageArticles(driver, 3);
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
 			logout(driver);
 			Thread.sleep(1000);
 
-			login(driver, "authorized1", "ITEcyber2017");
+			login(driver, config.getEncryptedValue("authorizedUser"), config.getEncryptedValue("authorizedPwd"));
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
 			checkAllSelectableMenus(driver,
 					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
