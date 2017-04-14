@@ -104,7 +104,7 @@ public class LoginTest {
 		System.out.println();
 	}
 
-//	@Ignore
+	@Ignore
 	@Test
 	public void localFirefoxTest() {
 		WebDriver driver = null;
