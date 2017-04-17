@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -212,7 +213,7 @@ public class LoginTest {
 			Configuration config = new Configuration();
 			director.buildContainers();
 			for (Container oneContainer : director.getNodes()) {
-				oneRemoteTest(oneContainer, config);
+				oneRemoteAuthorizedLoginTest(oneContainer, config);
 			}
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -238,6 +239,8 @@ public class LoginTest {
 				Assert.fail("unknown type, " + oneContainer.getContainerType());
 				break;
 			}
+			
+			browserCapabilities.setCapability("platform", Platform.LINUX);
 			
 			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities, browserCapabilities);
 			String nodeUrl = driver.getCurrentUrl();
@@ -277,5 +280,69 @@ public class LoginTest {
 			}
 		}
 	}
+
+	private void oneRemoteAuthorizedLoginTest(Container oneContainer, Configuration config) {
+			WebDriver driver = null;
+			try {
+				String url = "http://ite-cyber.indrasoft.net";
+	
+				DesiredCapabilities browserCapabilities = null;
+				switch (oneContainer.getContainerType()) {
+				case FirefoxNode:
+					browserCapabilities = DesiredCapabilities.firefox();
+					break;
+	
+				case ChromeNode:
+					browserCapabilities = DesiredCapabilities.chrome();
+					break;
+					
+				default:
+					Assert.fail("unknown type, " + oneContainer.getContainerType());
+					break;
+				}
+				
+				driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
+
+				int counter = 0;
+				boolean success = false;
+				do {
+					try {
+						driver.navigate().refresh();
+						driver.get(url);
+						counter = 3;
+						success = true;
+					} catch (Exception e) {
+						counter++;
+					}
+					if (counter >= 3) {
+						break;
+					}
+				} while (!success);
+				Assert.assertTrue(success);
+	
+				checkHomePageArticles(driver, 4);
+				checkMainMenus(driver, new String[] { "Home", "Report Threat", "About", "Login" });
+		
+				login(driver, config.getEncryptedValue("authorizedUser"), config.getEncryptedValue("authorizedPwd"));
+				checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
+				checkAllSelectableMenus(driver,
+						new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
+								"Sample Hacks", "Sectors", "Awareness", "Threat List", "Freight", "Infrastructure",
+								"Passenger Vehicles", "Regions", "Transit", "Report Threat", "Conact Us", "FAQ", "Requests",
+								"Logout" });
+				logout(driver);
+	
+				driver.close();
+				driver.quit();
+				driver = null;
+			} catch (Exception e) {
+				Assert.fail(oneContainer.getContainerType().name() + ": " + e.getMessage());
+			} finally {
+				if (driver != null) {
+					driver.close();
+					driver.quit();
+				}
+			}
+		}
 	
 }
