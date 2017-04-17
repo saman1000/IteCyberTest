@@ -60,7 +60,8 @@ public class SeleniumDirectorImpl implements SeleniumDirector {
 		dockerClient = DockerClientBuilder.getInstance(config).withDockerCmdExecFactory(dockerCmdExecFactory).build();
 
 		Info dockerInfo = dockerClient.infoCmd().exec();
-		System.out.println(dockerInfo.getDriver());
+		System.out.println("docker client driver is " + dockerInfo.getDriver());
+		
 	}
 
 	@Override

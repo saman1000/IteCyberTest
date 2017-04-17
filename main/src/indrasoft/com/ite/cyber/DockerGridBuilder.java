@@ -25,7 +25,7 @@ public class DockerGridBuilder implements ContainerBuilder {
 		ExposedPort tcp4444 = ExposedPort.tcp(portNumber.intValue());
 		portBindings.bind(tcp4444, Binding.bindPort(portNumber.intValue()));
 		CreateContainerResponse createContainerResponse = dockerClient.createContainerCmd("selenium/hub")
-				.withEnv("GRID_TIMEOUT=10", "--detahced=true", "MAX_INSTANCES=20", "MAX_SESSIONS=20").withPublishAllPorts(Boolean.TRUE)
+				.withEnv("GRID_TIMEOUT=10", "--detahced=true", "MAX_INSTANCES=20", "MAX_SESSION=20").withPublishAllPorts(Boolean.TRUE)
 				// .withAliases("selenium-hub")
 				.withExposedPorts(tcp4444).withPortBindings(portBindings).withName("selenium-hub").exec();
 		String[] warnings = createContainerResponse.getWarnings();

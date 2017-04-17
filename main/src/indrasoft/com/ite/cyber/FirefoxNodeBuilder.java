@@ -21,7 +21,8 @@ public class FirefoxNodeBuilder implements ContainerBuilder {
 		
 		String node_port = "5555";
 		CreateContainerResponse createContainerResponse = dockerClient.createContainerCmd(firefoxNode.getContainerType().getdockerImage())
-				.withEnv("--detached=true")//, "NODE_PORT=")
+//				.withEnv("no_proxy=localhost", "HUB_ENV_no_proxy=localhost", "NODE_MAX_INSTANCES=1", "NODE_MAX_SESSION=20")
+				.withEnv("NODE_MAX_INSTANCES=2", "NODE_MAX_SESSION=20")
 				.withLinks(new Link("selenium-hub", "hub"))
 				.withPublishAllPorts(Boolean.TRUE)
 				.withName("node-firefox")
