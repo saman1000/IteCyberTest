@@ -240,6 +240,8 @@ public class LoginTest {
 			}
 			
 			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities, browserCapabilities);
+			String nodeUrl = driver.getCurrentUrl();
+			System.out.println(nodeUrl);
 //			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
 
 			driver.get(url);
