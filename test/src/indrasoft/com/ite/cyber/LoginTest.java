@@ -212,6 +212,7 @@ public class LoginTest {
 		try (SeleniumDirector director = new SeleniumDirectorImpl();) {
 			Configuration config = new Configuration();
 			director.buildContainers();
+			Thread.sleep(6000);
 			for (Container oneContainer : director.getNodes()) {
 				oneRemoteAuthorizedLoginTest(oneContainer, config);
 			}
@@ -307,7 +308,8 @@ public class LoginTest {
 				boolean success = false;
 				do {
 					try {
-						driver.navigate().refresh();
+						driver.navigate().to(url);
+						System.out.println(driver.getCurrentUrl());
 						driver.get(url);
 						counter = 3;
 						success = true;
