@@ -1,5 +1,6 @@
 package indrasoft.com.ite.cyber;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.hamcrest.CoreMatchers;
@@ -7,11 +8,11 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -111,10 +112,10 @@ public class LoginTest {
 		WebDriver driver = null;
 		try {
 			Configuration config = new Configuration();
-			
-//			System.setProperty("webdriver.gecko.driver", "C:\\saman\\agile\\geckodriver.exe");
-			 System.setProperty("webdriver.gecko.driver",
-			 "/home/seluser/drivers/geckodriver");
+
+			// System.setProperty("webdriver.gecko.driver",
+			// "C:\\saman\\agile\\geckodriver.exe");
+			System.setProperty("webdriver.gecko.driver", "/home/seluser/drivers/geckodriver");
 			String url = "http://ubuntudev:9001";
 
 			DesiredCapabilities firefoxCapabilities = DesiredCapabilities.firefox();
@@ -179,20 +180,13 @@ public class LoginTest {
 			// one of the articles should be displayed only to anonymous users
 			checkHomePageArticles(driver, 3);
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-//			checkAllSelectableMenus(driver,
-//					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
-//							"Sample Hacks", "Sectors", "Freight", "Infrastructure", "Passenger Vehicles", "Transit",
-//							"Report Threat", "Conact Us", "FAQ", "Logout" });
+
 			logout(driver);
 			Thread.sleep(1000);
 
 			login(driver, config.getEncryptedValue("authorizedUser"), config.getEncryptedValue("approvedPwd"));
 			checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-//			checkAllSelectableMenus(driver,
-//					new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
-//							"Sample Hacks", "Sectors", "Awareness", "Threat List", "Freight", "Infrastructure",
-//							"Passenger Vehicles", "Regions", "Transit", "Report Threat", "Conact Us", "FAQ", "Requests",
-//							"Logout" });
+
 			logout(driver);
 
 			driver.close();
@@ -208,20 +202,48 @@ public class LoginTest {
 	}
 
 	@Test
-	public void testSeleniumNodes() {
+	public void testContactUs() {
+//		WebDriver driver = null;
+//		try {
+//			Configuration config = new Configuration();
+//
+//			 System.setProperty("webdriver.gecko.driver",
+//			 "C:\\saman\\agile\\geckodriver.exe");
+////			System.setProperty("webdriver.gecko.driver", "/home/seluser/drivers/geckodriver");
+//			String url = "http://ite-cyber.indrasoft.net";
+//
+//			DesiredCapabilities firefoxCapabilities = DesiredCapabilities.firefox();
+//
+//			driver = new FirefoxDriver(firefoxCapabilities);
+//			driver.navigate().to(url);
+//			driver.get(url);
+//			
+//			openContactUsPage(driver);
+//			
+//			driver.close();
+//			driver.quit();
+//			driver = null;
+//		} catch (Exception e) {
+//			Assert.fail(e.getMessage());
+//		} finally {
+//			if (driver != null) {
+//				driver.quit();
+//			}
+//		}
+
 		try (SeleniumDirector director = new SeleniumDirectorImpl();) {
 			Configuration config = new Configuration();
 			director.buildContainers();
 			Thread.sleep(6000);
 			for (Container oneContainer : director.getNodes()) {
-				oneRemoteAuthorizedLoginTest(oneContainer, config);
+				testBrowserAnonymousMenus(oneContainer, config);
 			}
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
 	}
-	
-	private void oneRemoteTest(Container oneContainer, Configuration config) {
+
+	private void testBrowserAnonymousMenus(Container oneContainer, Configuration config) {
 		WebDriver driver = null;
 		try {
 			String url = "http://ite-cyber.indrasoft.net";
@@ -235,18 +257,111 @@ public class LoginTest {
 			case ChromeNode:
 				browserCapabilities = DesiredCapabilities.chrome();
 				break;
-				
+
 			default:
 				Assert.fail("unknown type, " + oneContainer.getContainerType());
 				break;
 			}
+
+			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
+
+			driver.navigate().to(url);
+			System.out.println(driver.getCurrentUrl());
+			driver.get(url);
+
+			openContactUsPage(driver);
 			
-			browserCapabilities.setCapability("platform", Platform.LINUX);
-			
-			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities, browserCapabilities);
-			String nodeUrl = driver.getCurrentUrl();
-			System.out.println(nodeUrl);
-//			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
+			driver.close();
+			driver.quit();
+			driver = null;
+		} catch (Exception e) {
+			Assert.fail(oneContainer.getContainerType().name() + ": " + e.getMessage());
+		} finally {
+			if (driver != null) {
+				driver.close();
+				driver.quit();
+			}
+		}
+	}
+	
+	private void openContactUsPage(WebDriver driver) throws Exception {
+		By mainMenuLocator = By.xpath("//*[@id='js_navigation']");
+		By mainMenuOptionsLocator = By.xpath("//ul/li[descendant::span]");
+		WebElement aboutMenu = (new WebDriverWait(driver, 1))
+				.until(ExpectedConditions.presenceOfNestedElementLocatedBy(mainMenuLocator, mainMenuOptionsLocator));
+
+		Actions contactUsAction = new Actions(driver);
+		contactUsAction.moveToElement(aboutMenu).pause(Duration.ofMillis(100)).build().perform();
+		
+		WebElement contactUsOption = new WebDriverWait(driver, 1).until(ExpectedConditions
+				.presenceOfNestedElementLocatedBy(aboutMenu, By.xpath("//a[contains(.,'act')]")));
+		
+		contactUsOption.click();
+		
+		// wait max. 10 seconds until username label appears
+		WebElement legend = (new WebDriverWait(driver, 10))
+				.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//legend")));
+		Assert.assertTrue(legend.isDisplayed());
+		
+		WebElement nameBox = (new WebDriverWait(driver, 10))
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("contact_us___name")));
+		nameBox.sendKeys("junit test user");
+		
+		WebElement emailBox = (new WebDriverWait(driver, 10))
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("contact_us___email")));
+		emailBox.sendKeys("junittest@dummy.com");
+		
+		WebElement subjectBox = (new WebDriverWait(driver, 10))
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("contact_us___subject")));
+		subjectBox.sendKeys("junit test subject");
+		
+		WebElement messageBox = (new WebDriverWait(driver, 10))
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("contact_us___message")));
+		messageBox.sendKeys("junit test message");
+		
+		WebElement submitButton = new WebDriverWait(driver, 10).until(ExpectedConditions
+				.presenceOfElementLocated(By.xpath("//button[@type='submit']")));
+		submitButton.click();
+	}
+
+	@Test
+	public void testRolesAndMenus() {
+		try (SeleniumDirector director = new SeleniumDirectorImpl();) {
+			Configuration config = new Configuration();
+			director.buildContainers();
+			Thread.sleep(6000);
+			for (Container oneContainer : director.getNodes()) {
+				testBrowserRolesAndMenus(oneContainer, config);
+			}
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	private void testBrowserRolesAndMenus(Container oneContainer, Configuration config) {
+		WebDriver driver = null;
+		try {
+			String url = "http://ite-cyber.indrasoft.net";
+
+			DesiredCapabilities browserCapabilities = null;
+			switch (oneContainer.getContainerType()) {
+			case FirefoxNode:
+				browserCapabilities = DesiredCapabilities.firefox();
+				break;
+
+			case ChromeNode:
+				browserCapabilities = DesiredCapabilities.chrome();
+				break;
+
+			default:
+				Assert.fail("unknown type, " + oneContainer.getContainerType());
+				break;
+			}
+
+			driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
+			driver.navigate().to(url);
+			System.out.println(driver.getCurrentUrl());
+			driver.get(url);
 
 			driver.get(url);
 
@@ -282,69 +397,4 @@ public class LoginTest {
 		}
 	}
 
-	private void oneRemoteAuthorizedLoginTest(Container oneContainer, Configuration config) {
-			WebDriver driver = null;
-			try {
-				String url = "http://ite-cyber.indrasoft.net";
-	
-				DesiredCapabilities browserCapabilities = null;
-				switch (oneContainer.getContainerType()) {
-				case FirefoxNode:
-					browserCapabilities = DesiredCapabilities.firefox();
-					break;
-	
-				case ChromeNode:
-					browserCapabilities = DesiredCapabilities.chrome();
-					break;
-					
-				default:
-					Assert.fail("unknown type, " + oneContainer.getContainerType());
-					break;
-				}
-				
-				driver = new RemoteWebDriver(oneContainer.getUrl(), browserCapabilities);
-
-				int counter = 0;
-				boolean success = false;
-				do {
-					try {
-						driver.navigate().to(url);
-						System.out.println(driver.getCurrentUrl());
-						driver.get(url);
-						counter = 3;
-						success = true;
-					} catch (Exception e) {
-						counter++;
-					}
-					if (counter >= 3) {
-						break;
-					}
-				} while (!success);
-				Assert.assertTrue(success);
-	
-				checkHomePageArticles(driver, 4);
-				checkMainMenus(driver, new String[] { "Home", "Report Threat", "About", "Login" });
-		
-				login(driver, config.getEncryptedValue("authorizedUser"), config.getEncryptedValue("authorizedPwd"));
-				checkMainMenus(driver, new String[] { "Home", "Resources", "Sectors", "Report Threat", "About", "Logout" });
-				checkAllSelectableMenus(driver,
-						new String[] { "Home", "Resources", "Events Conferences", "NIST Framework", "Outreach",
-								"Sample Hacks", "Sectors", "Awareness", "Threat List", "Freight", "Infrastructure",
-								"Passenger Vehicles", "Regions", "Transit", "Report Threat", "Conact Us", "FAQ", "Requests",
-								"Logout" });
-				logout(driver);
-	
-				driver.close();
-				driver.quit();
-				driver = null;
-			} catch (Exception e) {
-				Assert.fail(oneContainer.getContainerType().name() + ": " + e.getMessage());
-			} finally {
-				if (driver != null) {
-					driver.close();
-					driver.quit();
-				}
-			}
-		}
-	
 }
